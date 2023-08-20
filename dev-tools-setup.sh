@@ -41,7 +41,7 @@ configure_ohmyzsh() {
 
     # Install zsh-syntax-highlighting and zsh-autosuggestions
     sudo apt install -y zsh-syntax-highlighting
-    git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/zsh-autosuggestions
+    git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/plugins
 
     sudo apt install -y zsh
     if [[ ! -f /root/.zsh ]]; then
