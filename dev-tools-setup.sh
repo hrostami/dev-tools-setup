@@ -41,7 +41,6 @@ configure_ohmyzsh() {
 
     # Install zsh-syntax-highlighting and zsh-autosuggestions
     sudo apt install -y zsh-syntax-highlighting
-    git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/plugins
 
     sudo apt install -y zsh
     if [[ ! -f /root/.zsh ]]; then
@@ -53,6 +52,7 @@ configure_ohmyzsh() {
     sudo apt install -y zsh-theme-powerlevel9k
     sudo rm -r -f ~/.oh-my-zsh
     git clone https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh
+    git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/plugins
     cat << EOF > ~/.zshrc
 cd ~
 if [[ $(whoami) == "root" ]]; then
