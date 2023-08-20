@@ -54,7 +54,7 @@ configure_ohmyzsh() {
     git clone https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh
     git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/plugins
     cat << EOF > ~/.zshrc
-cd ~
+#cd ~
 if [[ $(whoami) == "root" ]]; then
     export ZSH="/$(whoami)/.oh-my-zsh"
 else
