@@ -1,42 +1,45 @@
 #!/bin/bash
 
-# Function to display error messages and exit
-exit_with_error() {
-    echo -e "\033[1;31mError: $1\033[0m"
+# Function to handle errors
+handle_error() {
+    echo -e "\nAn error occurred:\n$1\nExiting..."
     exit 1
 }
+
+# Set error handler
+trap 'handle_error "$BASH_COMMAND"' ERR
 
 # Function to configure NvChad
 configure_nvchad() {
     echo "Configuring NvChad..."
 
     # Install software-properties-common and update package list
-    sudo apt-get install -y software-properties-common || exit_with_error "Failed to install software-properties-common"
-    sudo apt-get update || exit_with_error "Failed to update package list"
+    sudo apt-get install -y software-properties-common || handle_error
+    sudo apt-get update || handle_error
 
     # Add Neovim PPA repository
-    sudo add-apt-repository ppa:neovim-ppa/unstable || exit_with_error "Failed to add Neovim PPA repository"
-    sudo apt update || exit_with_error "Failed to update package list"
+    sudo add-apt-repository ppa:neovim-ppa/unstable || handle_error
+    sudo apt update || handle_error
 
     # Install Python virtual environment and pip
-    sudo apt install -y python3-venv python3-pip || exit_with_error "Failed to install Python packages"
+    sudo apt install -y python3-venv python3-pip || handle_error
 
     # Install Neovim
-    sudo apt install -y neovim || exit_with_error "Failed to install Neovim"
+    sudo apt install -y neovim || handle_error
 
     # Remove existing Neovim configuration
     rm -rf ~/.config/nvim
     rm -rf ~/.local/share/nvim
 
     # Clone NvChad configuration
-    git clone https://github.com/NvChad/NvChad ~/.config/nvim --depth 1 || exit_with_error "Failed to clone NvChad repository"
+    git clone https://github.com/NvChad/NvChad ~/.config/nvim --depth 1 || handle_error
 
     # Clone neovim-python repository
-    git clone https://github.com/dreamsofcode-io/neovim-python.git ~/.config/nvim/lua/custom --depth 1 || exit_with_error "Failed to clone neovim-python repository"
+    git clone https://github.com/dreamsofcode-io/neovim-python.git ~/.config/nvim/lua/custom --depth 1 || handle_error
 
     # Install Node.js and npm
-    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - || exit_with_error "Failed to set up Node.js repository"
-    sudo apt-get install -y nodejs || exit_with_error "Failed to install Node.js"
+    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - || handle_error
+    sudo apt-get install -y nodejs || handle_error
 
     echo "NvChad configuration completed."
 }
@@ -45,29 +48,26 @@ configure_nvchad() {
 configure_ohmyzsh() {
     echo "Configuring Oh-My-Zsh..."
 
-    sudo apt-get install software-properties-common || exit_with_error "Failed to install software-properties-common"
-    sudo apt-get update || exit_with_error "Failed to update package list"
-
     # Install zsh-syntax-highlighting and zsh-autosuggestions
-    sudo apt install -y zsh-syntax-highlighting || exit_with_error "Failed to install zsh-syntax-highlighting"
-    git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/zsh-autosuggestions || exit_with_error "Failed to clone zsh-autosuggestions repository"
+    sudo apt install -y zsh-syntax-highlighting || handle_error
 
-    sudo apt install -y zsh
+    sudo apt install -y zsh || handle_error
     if [[ ! -f /root/.zsh ]]; then
         echo "*"
     else
-        sudo mv -fr /root/.zsh /home/$SUDO_USER/.zsh
+        sudo mv -fr /root/.zsh /home/$SUDO_USER/.zsh || handle_error
     fi
-    sudo apt install -y powerline fonts-powerline
-    sudo apt install -y zsh-theme-powerlevel9k
-    sudo rm -r -f ~/.oh-my-zsh
-    git clone https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh || exit_with_error "Failed to clone Oh-My-Zsh repository"
-    cat << EOF > ~/.zshrc
+    sudo apt install -y powerline fonts-powerline || handle_error
+    sudo apt install -y zsh-theme-powerlevel9k || handle_error
+    sudo rm -r -f ~/.oh-my-zsh || handle_error
+    git clone https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh --depth 1 || handle_error
+    git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/plugins/zsh-autosuggestions --depth 1 || handle_error
+    cat << EOF > ~/.zshrc || handle_error
 #cd ~
-if [[ \$(whoami) == "root" ]]; then
-    export ZSH="/\$(whoami)/.oh-my-zsh"
+if [[ $(whoami) == "root" ]]; then
+    export ZSH="/$(whoami)/.oh-my-zsh"
 else
-    export ZSH="/home/\$(whoami)/.oh-my-zsh"
+    export ZSH="/home/$(whoami)/.oh-my-zsh"
 fi
 ZSH_THEME="agnoster"
 plugins=(
@@ -81,27 +81,29 @@ bindkey '^ ' autosuggest-accept
 POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(anaconda user dir vcs)
 POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status root_indicator background_jobs history ram ssh)
 EOF
-    sudo usermod -s /usr/bin/zsh \$(whoami)
+    sudo usermod -s /usr/bin/zsh $(whoami) || handle_error
     echo "Oh-My-Zsh configuration completed."
 }
 
-# ANSI color escape codes
-GREEN="\033[1;32m"
-YELLOW="\033[1;33m"
-CYAN="\033[1;36m"
-RESET="\033[0m"
-LINE="=============================================================================="
+# Function to print menu header
+print_menu_header() {
+    echo -e "\n$(tput setaf 6)==== Configuration Menu ====$(tput sgr0)"
+}
+
+# Function to print menu options
+print_menu_options() {
+    echo -e "$(tput setaf 2)1. Configure NvChad$(tput sgr0)"
+    echo -e "$(tput setaf 2)2. Configure Oh-My-Zsh$(tput sgr0)"
+    echo -e "$(tput setaf 3)3. Exit$(tput sgr0)"
+}
 
 # Main menu
 while true; do
     clear
-    echo -e "${CYAN}$LINE${RESET}"
-    echo -e "$(printf '%*s' $(((${#LINE}+27)/2)) "==== Configuration Menu ====")"
-    echo -e "${CYAN}$LINE${RESET}"
-    echo -e "${GREEN}1. Configure NvChad${RESET}"
-    echo -e "${GREEN}2. Configure Oh-My-Zsh${RESET}"
-    echo -e "${YELLOW}3. Exit${RESET}"
-    read -p "Please select an option (${GREEN}1${RESET}/${GREEN}2${RESET}/${YELLOW}3${RESET}): " choice
+    print_menu_header
+    print_menu_options
+
+    read -p "Please select an option ($(tput setaf 2)1$(tput sgr0)/$(tput setaf 2)2$(tput sgr0)/$(tput setaf 3)3$(tput sgr0)): " choice
 
     case $choice in
         1) configure_nvchad ;;
