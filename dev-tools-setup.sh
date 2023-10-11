@@ -22,15 +22,15 @@ configure_nvchad() {
     echo "Configuring NvChad..."
 
     # Install software-properties-common and update package list
-    sudo apt-get install -y software-properties-common || handle_error "Installing software-properties-common"
     sudo apt-get update || handle_error "Updating package list"
+    sudo apt-get install -y software-properties-common || handle_error "Installing software-properties-common"
 
     # Add Neovim PPA repository
     sudo add-apt-repository ppa:neovim-ppa/unstable || handle_error "Adding Neovim PPA repository"
     sudo apt update || handle_error "Updating package list"
 
     # Install Python virtual environment and pip
-    sudo apt install -y python3-venv python3-pip || handle_error "Installing Python virtual environment and pip"
+    sudo apt-get install -y python3-venv python3-pip || handle_error "Installing Python virtual environment and pip"
     sudo apt install -y git || handle_error "Installing Git"
 
     # Install Neovim
