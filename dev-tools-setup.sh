@@ -31,6 +31,7 @@ configure_nvchad() {
 
     # Install Python virtual environment and pip
     sudo apt-get install -y python3-venv python3-pip || handle_error "Installing Python virtual environment and pip"
+    sudo pip install virtualenv
     sudo apt install -y git || handle_error "Installing Git"
 
     # Install Neovim
