@@ -8,6 +8,6 @@ A simple script for installing basic tools such as NvChad(with [Perfect Python S
 ### How to run it
 Just run this command:
 ```bash
-curl -o dev-tools-setup.sh https://raw.githubusercontent.com/hrostami/dev-tools-setup/main/dev-tools-setup.sh && chmod +x dev-tools-setup.sh && ./dev-tools-setup.sh
+bash <(curl -sL https://raw.githubusercontent.com/hrostami/dev-tools-setup/main/dev-tools-setup.sh)
 
 ```
